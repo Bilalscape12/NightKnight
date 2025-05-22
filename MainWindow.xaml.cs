@@ -46,6 +46,11 @@ namespace NightKnight
             ApplyLightFilter(greenReduction, blueReduction);
         }
 
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyLightFilter(0.0, 0.0);
+        }
+
         private void ApplyLightFilter(double greenReduction, double blueReduction)
         {
             double gammaMax = 65535.0;
