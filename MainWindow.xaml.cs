@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace NightKnight
 {
@@ -26,9 +30,56 @@ namespace NightKnight
             public ushort[] Blue;
         }
 
+        private DispatcherTimer scheduleTimer = null!;
+        private DispatcherTimer animationTimer = null!;
+        private DispatcherTimer statusTimer = null!;
+        private ObservableCollection<FilterInterval> intervals = [];
+        private double currentGreenReduction = 0.0;
+        private double currentBlueReduction = 0.0;
+        private double targetGreenReduction = 0.0;
+        private double targetBlueReduction = 0.0;
+        private const double ANIMATION_STEP = 0.016; // ~60 FPS
+        private double animationProgress = 0.0;
+        private bool isAnimating = false;
+        private bool scheduleEnabled = false;
+
         public MainWindow()
         {
             InitializeComponent();
+            InitializeTimers();
+            InitializeUI();
+            LoadDefaultSchedule();
+        }
+
+        private void InitializeTimers()
+        {
+            // Schedule timer - checks every minute
+            scheduleTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMinutes(1)
+            };
+            scheduleTimer.Tick += ScheduleTimer_Tick;
+
+            // Animation timer for smooth transitions
+            animationTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(ANIMATION_STEP)
+            };
+            animationTimer.Tick += AnimationTimer_Tick;
+
+            // Status timer - updates every second
+            statusTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            statusTimer.Tick += StatusTimer_Tick;
+            statusTimer.Start();
+        }
+
+        private void InitializeUI()
+        {
+            ScheduleListView.ItemsSource = intervals;
+            
             GreenSlider.ValueChanged += (s, e) =>
             {
                 GreenText.Text = $"Green Reduction: {GreenSlider.Value:0.00}";
@@ -37,24 +88,272 @@ namespace NightKnight
             {
                 BlueText.Text = $"Blue Reduction: {BlueSlider.Value:0.00}";
             };
+
+            EnableScheduleCheckBox.Checked += (s, e) => 
+            {
+                scheduleEnabled = true;
+                scheduleTimer.Start();
+            };
+            EnableScheduleCheckBox.Unchecked += (s, e) => 
+            {
+                scheduleEnabled = false;
+                scheduleTimer.Stop();
+            };
         }
 
+        private void LoadDefaultSchedule()
+        {
+            // Example schedule - users can modify this
+            intervals.Add(new FilterInterval
+            {
+                StartTime = TimeSpan.FromHours(10),
+                EndTime = TimeSpan.FromHours(10) + TimeSpan.FromMinutes(10),
+                GreenReduction = 0.1,
+                BlueReduction = 0.3,
+                GradualStart = true,
+                GradualEnd = false,
+                StartTransitionDuration = TimeSpan.FromMinutes(10)
+            });
+
+            intervals.Add(new FilterInterval
+            {
+                StartTime = TimeSpan.FromHours(14),
+                EndTime = TimeSpan.FromHours(15),
+                GreenReduction = 0.2,
+                BlueReduction = 0.4,
+                GradualStart = false,
+                GradualEnd = true,
+                EndTransitionDuration = TimeSpan.FromMinutes(60)
+            });
+        }
+
+        private void StatusTimer_Tick(object? sender, EventArgs e)
+        {
+            TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            CurrentTimeText.Text = currentTime.ToString(@"hh\:mm");
+
+            FilterInterval? activeInterval = GetActiveInterval(currentTime);
+            if (activeInterval != null)
+            {
+                ActiveFilterText.Text = $"{activeInterval.StartTime:hh\\:mm} - {activeInterval.EndTime:hh\\:mm}";
+            }
+            else
+            {
+                ActiveFilterText.Text = "None";
+            }
+
+            CurrentGreenText.Text = $"{currentGreenReduction:P0}";
+            CurrentBlueText.Text = $"{currentBlueReduction:P0}";
+        }
+
+        private void ScheduleTimer_Tick(object? sender, EventArgs e)
+        {
+            if (!scheduleEnabled || isAnimating) return;
+
+            TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            FilterInterval? activeInterval = GetActiveInterval(currentTime);
+
+            if (activeInterval != null)
+            {
+                double targetGreen = activeInterval.GreenReduction;
+                double targetBlue = activeInterval.BlueReduction;
+
+                // Check if we need gradual transitions
+                if (activeInterval.GradualStart && IsInStartTransition(currentTime, activeInterval))
+                {
+                    double progress = GetStartTransitionProgress(currentTime, activeInterval);
+                    targetGreen *= progress;
+                    targetBlue *= progress;
+                }
+                else if (activeInterval.GradualEnd && IsInEndTransition(currentTime, activeInterval))
+                {
+                    double progress = GetEndTransitionProgress(currentTime, activeInterval);
+                    targetGreen *= progress;
+                    targetBlue *= progress;
+                }
+
+                if (Math.Abs(targetGreen - currentGreenReduction) > 0.001 || 
+                    Math.Abs(targetBlue - currentBlueReduction) > 0.001)
+                {
+                    StartSmoothTransition(targetGreen, targetBlue);
+                }
+            }
+            else
+            {
+                // No active interval, gradually reduce to zero
+                if (Math.Abs(currentGreenReduction) > 0.001 || Math.Abs(currentBlueReduction) > 0.001)
+                {
+                    StartSmoothTransition(0.0, 0.0);
+                }
+            }
+        }
+
+        private FilterInterval? GetActiveInterval(TimeSpan currentTime)
+        {
+            return intervals.FirstOrDefault(interval => 
+                interval.IsActive && 
+                currentTime >= interval.StartTime && 
+                currentTime <= interval.EndTime);
+        }
+
+        private static bool IsInStartTransition(TimeSpan currentTime, FilterInterval interval)
+        {
+            if (!interval.GradualStart) return false;
+            TimeSpan transitionEnd = interval.StartTime + interval.StartTransitionDuration;
+            return currentTime >= interval.StartTime && currentTime <= transitionEnd;
+        }
+
+        private static bool IsInEndTransition(TimeSpan currentTime, FilterInterval interval)
+        {
+            if (!interval.GradualEnd) return false;
+            TimeSpan transitionStart = interval.EndTime - interval.EndTransitionDuration;
+            return currentTime >= transitionStart && currentTime <= interval.EndTime;
+        }
+
+        private static double GetStartTransitionProgress(TimeSpan currentTime, FilterInterval interval)
+        {
+            TimeSpan elapsed = currentTime - interval.StartTime;
+            return Math.Min(1.0, elapsed.TotalMinutes / interval.StartTransitionDuration.TotalMinutes);
+        }
+
+        private static double GetEndTransitionProgress(TimeSpan currentTime, FilterInterval interval)
+        {
+            TimeSpan remaining = interval.EndTime - currentTime;
+            return Math.Max(0.0, remaining.TotalMinutes / interval.EndTransitionDuration.TotalMinutes);
+        }
+
+        private void StartSmoothTransition(double targetGreen, double targetBlue)
+        {
+            targetGreenReduction = targetGreen;
+            targetBlueReduction = targetBlue;
+            animationProgress = 0.0;
+            isAnimating = true;
+            
+            if (!animationTimer.IsEnabled)
+            {
+                animationTimer.Start();
+            }
+        }
+
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
+        {
+            animationProgress += ANIMATION_STEP / 0.5; // 0.5 second transition
+            
+            if (animationProgress >= 1.0)
+            {
+                animationProgress = 1.0;
+                animationTimer.Stop();
+                isAnimating = false;
+            }
+
+            // Smooth easing function
+            double easedProgress = animationProgress < 0.5 
+                ? 2 * animationProgress * animationProgress 
+                : 1 - Math.Pow(-2 * animationProgress + 2, 2) / 2;
+
+            currentGreenReduction += (targetGreenReduction - currentGreenReduction) * easedProgress;
+            currentBlueReduction += (targetBlueReduction - currentBlueReduction) * easedProgress;
+
+            ApplyLightFilter(currentGreenReduction, currentBlueReduction);
+        }
+
+        // GUI Event Handlers
         private void ApplyFilter_Click(object sender, RoutedEventArgs e)
         {
-            double greenReduction = GreenSlider.Value;
-            double blueReduction = BlueSlider.Value;
-            ApplyLightFilter(greenReduction, blueReduction);
+            StartSmoothTransition(GreenSlider.Value, BlueSlider.Value);
         }
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
-            ApplyLightFilter(0.0, 0.0);
+            StartSmoothTransition(0.0, 0.0);
         }
 
-        private void ApplyLightFilter(double greenReduction, double blueReduction)
+        private void AddInterval_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new IntervalDialog
+            {
+                Owner = this
+            };
+
+            if (dialog.ShowDialog() == true && dialog.Result != null)
+            {
+                intervals.Add(dialog.Result);
+                SortIntervals();
+            }
+        }
+
+        private void EditInterval_Click(object sender, RoutedEventArgs e)
+        {
+            if (ScheduleListView.SelectedItem is FilterInterval selectedInterval)
+            {
+                var dialog = new IntervalDialog(selectedInterval)
+                {
+                    Owner = this
+                };
+
+                if (dialog.ShowDialog() == true && dialog.Result != null)
+                {
+                    int index = intervals.IndexOf(selectedInterval);
+                    intervals[index] = dialog.Result;
+                    SortIntervals();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select an interval to edit.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void DeleteInterval_Click(object sender, RoutedEventArgs e)
+        {
+            if (ScheduleListView.SelectedItem is FilterInterval selectedInterval)
+            {
+                var result = MessageBox.Show("Are you sure you want to delete this interval?", "Confirm Delete", 
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                if (result == MessageBoxResult.Yes)
+                {
+                    intervals.Remove(selectedInterval);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select an interval to delete.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void ClearAllIntervals_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure you want to clear all intervals?", "Confirm Clear", 
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            
+            if (result == MessageBoxResult.Yes)
+            {
+                intervals.Clear();
+            }
+        }
+
+        private void ScheduleListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            // Enable/disable edit and delete buttons based on selection
+            bool hasSelection = ScheduleListView.SelectedItem != null;
+            // You can add button enable/disable logic here if needed
+        }
+
+        private void SortIntervals()
+        {
+            var sorted = intervals.OrderBy(i => i.StartTime).ToList();
+            intervals.Clear();
+            foreach (var interval in sorted)
+            {
+                intervals.Add(interval);
+            }
+        }
+
+        private static void ApplyLightFilter(double greenReduction, double blueReduction)
         {
             double gammaMax = 65535.0;
-            RAMP ramp = new RAMP
+            RAMP ramp = new()
             {
                 Red = new ushort[256],
                 Green = new ushort[256],
