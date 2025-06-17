@@ -42,6 +42,7 @@ namespace NightKnight
         private double animationProgress = 0.0;
         private bool isAnimating = false;
         private bool scheduleEnabled = false;
+        private bool isInTransition = false;
 
         public MainWindow()
         {
@@ -53,7 +54,7 @@ namespace NightKnight
 
         private void InitializeTimers()
         {
-            // Schedule timer - checks every minute
+            // Schedule timer - starts with 1 minute interval, will be adjusted dynamically
             scheduleTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMinutes(1)
@@ -135,7 +136,18 @@ namespace NightKnight
             FilterInterval? activeInterval = GetActiveInterval(currentTime);
             if (activeInterval != null)
             {
-                ActiveFilterText.Text = $"{activeInterval.StartTime:hh\\:mm} - {activeInterval.EndTime:hh\\:mm}";
+                string intervalText;
+                if (activeInterval.StartTime > activeInterval.EndTime)
+                {
+                    // Overnight interval
+                    intervalText = $"{activeInterval.StartTime:hh\\:mm} - {activeInterval.EndTime:hh\\:mm} (Overnight)";
+                }
+                else
+                {
+                    // Normal interval
+                    intervalText = $"{activeInterval.StartTime:hh\\:mm} - {activeInterval.EndTime:hh\\:mm}";
+                }
+                ActiveFilterText.Text = intervalText;
             }
             else
             {
@@ -152,6 +164,8 @@ namespace NightKnight
 
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
             FilterInterval? activeInterval = GetActiveInterval(currentTime);
+            bool wasInTransition = isInTransition;
+            isInTransition = false;
 
             if (activeInterval != null)
             {
@@ -161,12 +175,14 @@ namespace NightKnight
                 // Check if we need gradual transitions
                 if (activeInterval.GradualStart && IsInStartTransition(currentTime, activeInterval))
                 {
+                    isInTransition = true;
                     double progress = GetStartTransitionProgress(currentTime, activeInterval);
                     targetGreen *= progress;
                     targetBlue *= progress;
                 }
                 else if (activeInterval.GradualEnd && IsInEndTransition(currentTime, activeInterval))
                 {
+                    isInTransition = true;
                     double progress = GetEndTransitionProgress(currentTime, activeInterval);
                     targetGreen *= progress;
                     targetBlue *= progress;
@@ -186,39 +202,116 @@ namespace NightKnight
                     StartSmoothTransition(0.0, 0.0);
                 }
             }
+
+            // Adjust timer interval based on whether we're in a transition
+            AdjustScheduleTimerInterval(wasInTransition, isInTransition);
+        }
+
+        private void AdjustScheduleTimerInterval(bool wasInTransition, bool isInTransition)
+        {
+            if (isInTransition && !wasInTransition)
+            {
+                // Entering transition - use faster updates
+                scheduleTimer.Interval = TimeSpan.FromSeconds(1);
+            }
+            else if (!isInTransition && wasInTransition)
+            {
+                // Exiting transition - return to normal updates
+                scheduleTimer.Interval = TimeSpan.FromMinutes(1);
+            }
         }
 
         private FilterInterval? GetActiveInterval(TimeSpan currentTime)
         {
             return intervals.FirstOrDefault(interval => 
                 interval.IsActive && 
-                currentTime >= interval.StartTime && 
-                currentTime <= interval.EndTime);
+                IsTimeInInterval(currentTime, interval));
+        }
+
+        private static bool IsTimeInInterval(TimeSpan currentTime, FilterInterval interval)
+        {
+            // Handle intervals that cross midnight
+            if (interval.StartTime > interval.EndTime)
+            {
+                // Interval crosses midnight (e.g., 21:00 to 08:00)
+                return currentTime >= interval.StartTime || currentTime <= interval.EndTime;
+            }
+            else
+            {
+                // Normal interval within same day (e.g., 10:00 to 18:00)
+                return currentTime >= interval.StartTime && currentTime <= interval.EndTime;
+            }
         }
 
         private static bool IsInStartTransition(TimeSpan currentTime, FilterInterval interval)
         {
             if (!interval.GradualStart) return false;
+            
             TimeSpan transitionEnd = interval.StartTime + interval.StartTransitionDuration;
-            return currentTime >= interval.StartTime && currentTime <= transitionEnd;
+            
+            // Handle transition that crosses midnight
+            if (transitionEnd > TimeSpan.FromHours(24))
+            {
+                transitionEnd = transitionEnd - TimeSpan.FromHours(24);
+                return currentTime >= interval.StartTime || currentTime <= transitionEnd;
+            }
+            else
+            {
+                return currentTime >= interval.StartTime && currentTime <= transitionEnd;
+            }
         }
 
         private static bool IsInEndTransition(TimeSpan currentTime, FilterInterval interval)
         {
             if (!interval.GradualEnd) return false;
+            
             TimeSpan transitionStart = interval.EndTime - interval.EndTransitionDuration;
-            return currentTime >= transitionStart && currentTime <= interval.EndTime;
+            
+            // Handle transition that crosses midnight
+            if (transitionStart < TimeSpan.Zero)
+            {
+                transitionStart = TimeSpan.FromHours(24) + transitionStart;
+                return currentTime >= transitionStart || currentTime <= interval.EndTime;
+            }
+            else
+            {
+                return currentTime >= transitionStart && currentTime <= interval.EndTime;
+            }
         }
 
         private static double GetStartTransitionProgress(TimeSpan currentTime, FilterInterval interval)
         {
-            TimeSpan elapsed = currentTime - interval.StartTime;
+            TimeSpan elapsed;
+            
+            if (currentTime >= interval.StartTime)
+            {
+                // Normal case: current time is after start time
+                elapsed = currentTime - interval.StartTime;
+            }
+            else
+            {
+                // Crossed midnight: current time is before start time but interval is active
+                elapsed = (TimeSpan.FromHours(24) - interval.StartTime) + currentTime;
+            }
+            
             return Math.Min(1.0, elapsed.TotalMinutes / interval.StartTransitionDuration.TotalMinutes);
         }
 
         private static double GetEndTransitionProgress(TimeSpan currentTime, FilterInterval interval)
         {
-            TimeSpan remaining = interval.EndTime - currentTime;
+            TimeSpan remaining;
+            
+            if (currentTime <= interval.EndTime)
+            {
+                // Normal case: current time is before end time
+                remaining = interval.EndTime - currentTime;
+            }
+            else
+            {
+                // Crossed midnight: current time is after end time but interval is still active
+                remaining = (TimeSpan.FromHours(24) - currentTime) + interval.EndTime;
+            }
+            
             return Math.Max(0.0, remaining.TotalMinutes / interval.EndTransitionDuration.TotalMinutes);
         }
 

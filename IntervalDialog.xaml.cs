@@ -83,9 +83,11 @@ namespace NightKnight
                 return false;
             }
 
-            if (endTime <= startTime)
+            // Allow overnight intervals (start time > end time)
+            // Only reject if times are exactly the same
+            if (startTime == endTime)
             {
-                MessageBox.Show("End time must be after start time.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Start time and end time cannot be the same.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
                 EndTimeTextBox.Focus();
                 return false;
             }

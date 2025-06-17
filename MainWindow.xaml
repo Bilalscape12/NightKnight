@@ -6,6 +6,7 @@
     
     <Window.Resources>
         <local:TimeSpanConverter x:Key="TimeSpanConverter"/>
+        <local:OvernightConverter x:Key="OvernightConverter"/>
     </Window.Resources>
     
     <Grid Margin="10">
@@ -70,6 +71,20 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding EndTime, Converter={StaticResource TimeSpanConverter}}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Type" Width="80">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Text>
+                                                        <MultiBinding Converter="{StaticResource OvernightConverter}">
+                                                            <Binding Path="StartTime"/>
+                                                            <Binding Path="EndTime"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
