@@ -43,6 +43,9 @@ namespace NightKnight
         private bool isAnimating = false;
         private bool scheduleEnabled = false;
         private bool isInTransition = false;
+        private double userLatitude = 40.7128; // Default to New York
+        private double userLongitude = -74.0060;
+        private int userTimezoneOffset = -5; // Default to EST
 
         public MainWindow()
         {
@@ -423,6 +426,65 @@ namespace NightKnight
             if (result == MessageBoxResult.Yes)
             {
                 intervals.Clear();
+            }
+        }
+
+        private void SunsetSunrisePreset_Click(object sender, RoutedEventArgs e)
+        {
+            var locationDialog = new LocationDialog(userLatitude, userLongitude, userTimezoneOffset)
+            {
+                Owner = this
+            };
+
+            if (locationDialog.ShowDialog() == true)
+            {
+                userLatitude = locationDialog.Latitude;
+                userLongitude = locationDialog.Longitude;
+                userTimezoneOffset = locationDialog.TimezoneOffset;
+                CreateSunsetSunrisePreset();
+            }
+        }
+
+        private void CreateSunsetSunrisePreset()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var (sunrise, sunset) = SunCalculator.CalculateSunTimes(today, userLatitude, userLongitude);
+                
+                // Calculate the duration of sunrise and sunset
+                TimeSpan sunsetDuration = SunCalculator.CalculateSunsetDuration(today, userLatitude, userLongitude);
+                TimeSpan sunriseDuration = SunCalculator.CalculateSunriseDuration(today, userLatitude, userLongitude);
+
+                // Clear existing intervals
+                // intervals.Clear();
+
+                // Create single overnight interval from sunset to sunrise
+                intervals.Add(new FilterInterval
+                {
+                    StartTime = sunset,
+                    EndTime = sunrise,
+                    GreenReduction = 0.2,
+                    BlueReduction = 0.5,
+                    GradualStart = true,
+                    GradualEnd = true,
+                    StartTransitionDuration = sunsetDuration,
+                    EndTransitionDuration = sunriseDuration,
+                    IsActive = true
+                });
+
+                MessageBox.Show($"Sunset/Sunrise preset created for your location!\n\n" +
+                               $"Today's times:\n" +
+                               $"Sunrise: {sunrise:hh\\:mm}\n" +
+                               $"Sunset: {sunset:hh\\:mm}\n" +
+                               $"Sunset Duration: {sunsetDuration.TotalMinutes:F0} minutes\n" +
+                               $"Sunrise Duration: {sunriseDuration.TotalMinutes:F0} minutes\n\n" +
+                               $"The filter will gradually activate during sunset and deactivate during sunrise.",
+                               "Preset Created", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error creating preset: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

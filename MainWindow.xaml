@@ -52,6 +52,7 @@
                             <Button Content="Edit Selected" Click="EditInterval_Click" Margin="5" Width="120" Height="30"/>
                             <Button Content="Delete Selected" Click="DeleteInterval_Click" Margin="5" Width="120" Height="30"/>
                             <Button Content="Clear All" Click="ClearAllIntervals_Click" Margin="5" Width="120" Height="30"/>
+                            <Button Content="Sunset/Sunrise Preset" Click="SunsetSunrisePreset_Click" Margin="5" Width="140" Height="30"/>
                         </StackPanel>
                     </GroupBox>
                     
