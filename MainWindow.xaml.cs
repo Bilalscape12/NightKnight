@@ -124,9 +124,9 @@ namespace NightKnight
                 EndTime = TimeSpan.FromHours(8),
                 GreenReduction = 0.3,
                 BlueReduction = 0.5,
-                GradualStart = true,
-                GradualEnd = false,
-                StartTransitionDuration = TimeSpan.FromMinutes(1)
+                GradualStart = false,
+                GradualEnd = true,
+                EndTransitionDuration = TimeSpan.FromMinutes(1)
             });
         }
 
