@@ -7,20 +7,15 @@ namespace NightKnight
     {
         public double Latitude { get; private set; }
         public double Longitude { get; private set; }
-        public int TimezoneOffset { get; private set; }
 
-        public LocationDialog(double latitude = 40.7128, double longitude = -74.0060, int timezoneOffset = -5)
+        public LocationDialog(double latitude = 40.7128, double longitude = -74.0060)
         {
             InitializeComponent();
             Latitude = latitude;
             Longitude = longitude;
-            TimezoneOffset = timezoneOffset;
             
             LatitudeTextBox.Text = latitude.ToString();
             LongitudeTextBox.Text = longitude.ToString();
-            TimezoneTextBox.Text = timezoneOffset.ToString();
-            
-            UpdateSunTimes();
         }
 
         private void PresetComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -54,37 +49,6 @@ namespace NightKnight
                         LongitudeTextBox.Text = "0.0000";
                         break;
                 }
-                
-                if (selectedItem.Content.ToString() != "Custom")
-                {
-                    UpdateSunTimes();
-                }
-            }
-        }
-
-        private void UpdateSunTimes()
-        {
-            if (double.TryParse(LatitudeTextBox.Text, out double lat) && 
-                double.TryParse(LongitudeTextBox.Text, out double lon) &&
-                int.TryParse(TimezoneTextBox.Text, out int tzOffset))
-            {
-                try
-                {
-                    var today = DateTime.Today;
-                    var (sunrise, sunset) = SunCalculator.CalculateSunTimes(today, lat, lon);
-                    
-                    SunTimesText.Text = $"Today ({today:MMM dd, yyyy}):\n" +
-                                       $"Sunrise: {sunrise:hh\\:mm}\n" +
-                                       $"Sunset: {sunset:hh\\:mm}";
-                }
-                catch
-                {
-                    SunTimesText.Text = "Error calculating sun times. Please check coordinates and timezone.";
-                }
-            }
-            else
-            {
-                SunTimesText.Text = "Please enter valid coordinates and timezone.";
             }
         }
 
@@ -94,7 +58,6 @@ namespace NightKnight
             {
                 Latitude = double.Parse(LatitudeTextBox.Text);
                 Longitude = double.Parse(LongitudeTextBox.Text);
-                TimezoneOffset = int.Parse(TimezoneTextBox.Text);
                 DialogResult = true;
                 Close();
             }
@@ -122,13 +85,6 @@ namespace NightKnight
                 return false;
             }
 
-            if (!int.TryParse(TimezoneTextBox.Text, out int timezoneOffset))
-            {
-                MessageBox.Show("Please enter a valid timezone offset.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
-                TimezoneTextBox.Focus();
-                return false;
-            }
-
             if (latitude < -90 || latitude > 90)
             {
                 MessageBox.Show("Latitude must be between -90 and 90 degrees.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -140,13 +96,6 @@ namespace NightKnight
             {
                 MessageBox.Show("Longitude must be between -180 and 180 degrees.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
                 LongitudeTextBox.Focus();
-                return false;
-            }
-
-            if (timezoneOffset < -12 || timezoneOffset > 14)
-            {
-                MessageBox.Show("Timezone offset must be between -12 and +14 hours.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
-                TimezoneTextBox.Focus();
                 return false;
             }
 

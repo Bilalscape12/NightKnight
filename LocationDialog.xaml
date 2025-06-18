@@ -1,7 +1,7 @@
 <Window x:Class="NightKnight.LocationDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Location Settings" Height="350" Width="400" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+        Title="Location Settings" Height="500" Width="400" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -45,24 +45,6 @@
                     </ComboBox>
                     <TextBlock Text="Select a preset location or choose Custom to enter coordinates manually." 
                                TextWrapping="Wrap" FontSize="11" Foreground="Gray" Margin="0,0,0,10"/>
-                    
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Timezone Offset (UTC):" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Grid.Column="1" x:Name="TimezoneTextBox" Text="-8" Width="60" HorizontalAlignment="Left"/>
-                    </Grid>
-                    <TextBlock Text="Enter timezone offset in hours (e.g., -8 for PST, -5 for EST, +1 for CET)" 
-                               TextWrapping="Wrap" FontSize="11" Foreground="Gray"/>
-                </StackPanel>
-            </GroupBox>
-            
-            <GroupBox Header="Today's Sun Times" Margin="0,0,0,15">
-                <StackPanel Margin="10">
-                    <TextBlock x:Name="SunTimesText" Text="Enter coordinates to see today's sun times" 
-                               TextWrapping="Wrap" FontSize="11"/>
                 </StackPanel>
             </GroupBox>
         </StackPanel>

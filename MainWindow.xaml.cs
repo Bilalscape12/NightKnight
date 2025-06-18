@@ -45,7 +45,6 @@ namespace NightKnight
         private bool isInTransition = false;
         private double userLatitude = 40.7128; // Default to New York
         private double userLongitude = -74.0060;
-        private int userTimezoneOffset = -5; // Default to EST
 
         public MainWindow()
         {
@@ -255,7 +254,7 @@ namespace NightKnight
             // Handle transition that crosses midnight
             if (transitionEnd > TimeSpan.FromHours(24))
             {
-                transitionEnd = transitionEnd - TimeSpan.FromHours(24);
+                transitionEnd -= TimeSpan.FromHours(24);
                 return currentTime >= interval.StartTime || currentTime <= transitionEnd;
             }
             else
@@ -431,7 +430,7 @@ namespace NightKnight
 
         private void SunsetSunrisePreset_Click(object sender, RoutedEventArgs e)
         {
-            var locationDialog = new LocationDialog(userLatitude, userLongitude, userTimezoneOffset)
+            var locationDialog = new LocationDialog(userLatitude, userLongitude)
             {
                 Owner = this
             };
@@ -440,7 +439,6 @@ namespace NightKnight
             {
                 userLatitude = locationDialog.Latitude;
                 userLongitude = locationDialog.Longitude;
-                userTimezoneOffset = locationDialog.TimezoneOffset;
                 CreateSunsetSunrisePreset();
             }
         }
