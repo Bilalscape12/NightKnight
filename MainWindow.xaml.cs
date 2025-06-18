@@ -109,24 +109,24 @@ namespace NightKnight
             // Example schedule - users can modify this
             intervals.Add(new FilterInterval
             {
-                StartTime = TimeSpan.FromHours(10),
-                EndTime = TimeSpan.FromHours(10) + TimeSpan.FromMinutes(10),
+                StartTime = TimeSpan.FromHours(8),
+                EndTime = TimeSpan.FromHours(20),
                 GreenReduction = 0.1,
                 BlueReduction = 0.3,
-                GradualStart = true,
-                GradualEnd = false,
-                StartTransitionDuration = TimeSpan.FromMinutes(10)
+                GradualStart = false,
+                GradualEnd = true,
+                EndTransitionDuration = TimeSpan.FromMinutes(1)
             });
 
             intervals.Add(new FilterInterval
             {
-                StartTime = TimeSpan.FromHours(14),
-                EndTime = TimeSpan.FromHours(15),
-                GreenReduction = 0.2,
-                BlueReduction = 0.4,
-                GradualStart = false,
-                GradualEnd = true,
-                EndTransitionDuration = TimeSpan.FromMinutes(60)
+                StartTime = TimeSpan.FromHours(20),
+                EndTime = TimeSpan.FromHours(8),
+                GreenReduction = 0.3,
+                BlueReduction = 0.5,
+                GradualStart = true,
+                GradualEnd = false,
+                StartTransitionDuration = TimeSpan.FromMinutes(1)
             });
         }
 
@@ -166,6 +166,7 @@ namespace NightKnight
 
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
             FilterInterval? activeInterval = GetActiveInterval(currentTime);
+            FilterInterval? nextInterval = GetNextInterval(currentTime);
             bool wasInTransition = isInTransition;
             isInTransition = false;
 
@@ -186,8 +187,20 @@ namespace NightKnight
                 {
                     isInTransition = true;
                     double progress = GetEndTransitionProgress(currentTime, activeInterval);
-                    targetGreen *= progress;
-                    targetBlue *= progress;
+                    
+                    // Check if there's a next interval that starts when this one ends
+                    if (nextInterval != null && nextInterval.StartTime == activeInterval.EndTime)
+                    {
+                        // Transition to next interval's settings instead of zero
+                        targetGreen = activeInterval.GreenReduction + (nextInterval.GreenReduction - activeInterval.GreenReduction) * (1 - progress);
+                        targetBlue = activeInterval.BlueReduction + (nextInterval.BlueReduction - activeInterval.BlueReduction) * (1 - progress);
+                    }
+                    else
+                    {
+                        // Transition to zero (no next interval)
+                        targetGreen *= progress;
+                        targetBlue *= progress;
+                    }
                 }
 
                 if (Math.Abs(targetGreen - currentGreenReduction) > 0.001 || 
@@ -207,6 +220,14 @@ namespace NightKnight
 
             // Adjust timer interval based on whether we're in a transition
             AdjustScheduleTimerInterval(wasInTransition, isInTransition);
+        }
+
+        private FilterInterval? GetNextInterval(TimeSpan currentTime)
+        {
+            return intervals
+                .Where(interval => interval.IsActive && interval.StartTime > currentTime)
+                .OrderBy(interval => interval.StartTime)
+                .FirstOrDefault();
         }
 
         private void AdjustScheduleTimerInterval(bool wasInTransition, bool isInTransition)
