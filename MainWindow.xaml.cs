@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace NightKnight
 {
@@ -507,11 +510,35 @@ namespace NightKnight
             }
         }
 
-        private void ScheduleListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ScheduleListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Enable/disable edit and delete buttons based on selection
             bool hasSelection = ScheduleListView.SelectedItem != null;
-            // You can add button enable/disable logic here if needed
+            // You can add button references here if needed
+        }
+
+        private void ScheduleListView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Get the item that was clicked
+            var item = GetListViewItemFromPoint(ScheduleListView, e.GetPosition(ScheduleListView));
+            
+            // If no item was clicked (clicked on empty space), clear selection
+            if (item == null)
+            {
+                ScheduleListView.SelectedItem = null;
+            }
+        }
+
+        private ListViewItem? GetListViewItemFromPoint(ListView listView, Point point)
+        {
+            var element = listView.InputHitTest(point) as DependencyObject;
+            
+            while (element != null && !(element is ListViewItem))
+            {
+                element = VisualTreeHelper.GetParent(element);
+            }
+            
+            return element as ListViewItem;
         }
 
         private void SortIntervals()
