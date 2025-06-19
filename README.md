@@ -1,4 +1,4 @@
-# NightKnight
+# ![NightKnight logo](readme-logo.png) NightKnight
 
 **NightKnight** is a lightweight Windows WPF app that helps users setup a blue and/or green light filter for their Windows device with a fully customizable scheduling system. 
 
