@@ -26,7 +26,7 @@ By default, the schedule has a medium strength interval from 8 AM to 8 PM and a 
 ## Known Limitations
 
 - Scheduled intervals have a ~22 second delay.
-- Filtering only goes up to 50%.
+- Filtering only goes up to 50%. Windows prevents greater changes.
 
 ## License
 

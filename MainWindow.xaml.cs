@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -52,9 +54,67 @@ namespace NightKnight
         public MainWindow()
         {
             InitializeComponent();
+            LoadSettings();
             InitializeTimers();
             InitializeUI();
-            LoadDefaultSchedule();
+            LoadIntervals();
+            
+            // Add window closing event handler
+            Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object? sender, CancelEventArgs e)
+        {
+            SaveIntervals();
+            SaveSettings();
+        }
+
+        private void LoadSettings()
+        {
+            var settings = SettingsManager.LoadSettings();
+            scheduleEnabled = settings.ScheduleEnabled;
+            userLatitude = settings.UserLatitude;
+            userLongitude = settings.UserLongitude;
+        }
+
+        private void SaveSettings()
+        {
+            var settings = new AppSettings
+            {
+                ScheduleEnabled = scheduleEnabled,
+                UserLatitude = userLatitude,
+                UserLongitude = userLongitude
+            };
+            SettingsManager.SaveSettings(settings);
+        }
+
+        private void LoadIntervals()
+        {
+            var savedIntervals = SettingsManager.LoadIntervals();
+            
+            if (savedIntervals.Count > 0)
+            {
+                // Load saved intervals
+                foreach (var interval in savedIntervals)
+                {
+                    intervals.Add(interval);
+                }
+            }
+            else
+            {
+                // Load default schedule if no saved intervals exist
+                LoadDefaultSchedule();
+            }
+            
+            SortIntervals();
+            
+            // Add collection changed event handler to auto-save
+            intervals.CollectionChanged += (s, e) => SaveIntervals();
+        }
+
+        private void SaveIntervals()
+        {
+            SettingsManager.SaveIntervals(intervals);
         }
 
         private void InitializeTimers()
@@ -99,12 +159,17 @@ namespace NightKnight
             {
                 scheduleEnabled = true;
                 scheduleTimer.Start();
+                SaveSettings();
             };
             EnableScheduleCheckBox.Unchecked += (s, e) => 
             {
                 scheduleEnabled = false;
                 scheduleTimer.Stop();
+                SaveSettings();
             };
+
+            // Set initial checkbox state
+            EnableScheduleCheckBox.IsChecked = scheduleEnabled;
         }
 
         private void LoadDefaultSchedule()
@@ -398,6 +463,7 @@ namespace NightKnight
             {
                 intervals.Add(dialog.Result);
                 SortIntervals();
+                SaveIntervals();
             }
         }
 
@@ -415,6 +481,7 @@ namespace NightKnight
                     int index = intervals.IndexOf(selectedInterval);
                     intervals[index] = dialog.Result;
                     SortIntervals();
+                    SaveIntervals();
                 }
             }
             else
@@ -433,6 +500,7 @@ namespace NightKnight
                 if (result == MessageBoxResult.Yes)
                 {
                     intervals.Remove(selectedInterval);
+                    SaveIntervals();
                 }
             }
             else
@@ -449,6 +517,7 @@ namespace NightKnight
             if (result == MessageBoxResult.Yes)
             {
                 intervals.Clear();
+                SaveIntervals();
             }
         }
 
@@ -464,6 +533,7 @@ namespace NightKnight
                 userLatitude = locationDialog.Latitude;
                 userLongitude = locationDialog.Longitude;
                 CreateSunsetSunrisePreset();
+                SaveSettings();
             }
         }
 
@@ -494,6 +564,9 @@ namespace NightKnight
                     EndTransitionDuration = sunriseDuration,
                     IsActive = true
                 });
+
+                SortIntervals();
+                SaveIntervals();
 
                 MessageBox.Show($"Sunset/Sunrise preset created for your location!\n\n" +
                                $"Today's times:\n" +

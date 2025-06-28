@@ -131,7 +131,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Duration (minutes):" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox Grid.Column="1" x:Name="StartTransitionTextBox" Text="10" Width="60" HorizontalAlignment="Left"/>
+                            <TextBox Grid.Column="1" x:Name="StartTransitionTextBox" Text="1" Width="60" HorizontalAlignment="Left"/>
                         </Grid>
                         
                         <CheckBox x:Name="GradualEndCheckBox" Content="Gradual End" Margin="0,0,0,10"/>
@@ -141,7 +141,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Duration (minutes):" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox Grid.Column="1" x:Name="EndTransitionTextBox" Text="5" Width="60" HorizontalAlignment="Left"/>
+                            <TextBox Grid.Column="1" x:Name="EndTransitionTextBox" Text="1" Width="60" HorizontalAlignment="Left"/>
                         </Grid>
                     </StackPanel>
                 </GroupBox>
