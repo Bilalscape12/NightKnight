@@ -265,26 +265,148 @@
         <TabControl>
             <!-- Manual Control Tab -->
             <TabItem Header="Manual Control">
-                <StackPanel Margin="10">
-                    <TextBlock Text="Manual Filter Control" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
                     
-                    <GroupBox Header="Filter Intensity" Margin="0,0,0,20">
-                        <StackPanel Margin="10">
-                            <TextBlock Text="Green Channel Reduction:" Margin="0,0,0,5"/>
-                            <Slider x:Name="GreenSlider" Minimum="0" Maximum="0.5" Value="0" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
-                            <TextBlock x:Name="GreenText" Text="Green Reduction: 0.00" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
-                            
-                            <TextBlock Text="Blue Channel Reduction:" Margin="0,0,0,5"/>
-                            <Slider x:Name="BlueSlider" Minimum="0" Maximum="0.5" Value="0.3" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
-                            <TextBlock x:Name="BlueText" Text="Blue Reduction: 0.30" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
+                    <!-- Top section - Filter Controls -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                        <TextBlock Text="Manual Filter Control" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
+                        
+                        <GroupBox Header="Filter Intensity" Margin="0,0,0,20">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="Green Channel Reduction:" Margin="0,0,0,5"/>
+                                <Slider x:Name="GreenSlider" Minimum="0" Maximum="0.5" Value="0" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="GreenText" Text="Green Reduction: 0.00" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
+                                
+                                <TextBlock Text="Blue Channel Reduction:" Margin="0,0,0,5"/>
+                                <Slider x:Name="BlueSlider" Minimum="0" Maximum="0.5" Value="0.3" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="BlueText" Text="Blue Reduction: 0.30" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="Apply Filter" Click="ApplyFilter_Click" Margin="5" Width="120" Height="35"/>
+                            <Button Content="Reset" Click="Reset_Click" Margin="5" Width="120" Height="35"/>
                         </StackPanel>
-                    </GroupBox>
-                    
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="Apply Filter" Click="ApplyFilter_Click" Margin="5" Width="120" Height="35"/>
-                        <Button Content="Reset" Click="Reset_Click" Margin="5" Width="120" Height="35"/>
                     </StackPanel>
-                </StackPanel>
+                    
+                    <!-- Bottom section - Color Palette -->
+                    <GroupBox Grid.Row="1" Header="Color Palette - Apply filter to see effects" Height="400">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="Rainbow Colors:" FontWeight="Bold" Margin="0,0,0,10"/>
+                                
+                                <!-- Rainbow Colors Row -->
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Rectangle Grid.Column="0" Fill="Red" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="1" Fill="DarkOrange" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="2" Fill="Yellow" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="3" Fill="GreenYellow" Height="60" Margin="2"/>
+                                </Grid>
+                                
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Rectangle Grid.Column="0" Fill="Lime" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="1" Fill="SpringGreen" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="2" Fill="Aqua" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="3" Fill="DodgerBlue" Height="60" Margin="2"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Rectangle Grid.Column="0" Fill="Blue" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="1" Fill="BlueViolet" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="2" Fill="Fuchsia" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="3" Fill="DeepPink" Height="60" Margin="2"/>
+                                </Grid>
+                                
+                                <TextBlock Text="Color Shades (Light to Dark):" FontWeight="Bold" Margin="0,0,0,10"/>
+                                
+                                <!-- Red Shades -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="Red:" VerticalAlignment="Center" Width="40" Margin="0,0,10,0"/>
+                                    <Rectangle Fill="#FFE6E6" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FFCCCC" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FFB3B3" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF9999" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF8080" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF6666" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF4D4D" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF3333" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF1A1A" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#FF0000" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#E60000" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#CC0000" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#B30000" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#990000" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#800000" Height="40" Width="40" Margin="2"/>
+                                </StackPanel>
+                                
+                                <!-- Green Shades -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="Green:" VerticalAlignment="Center" Width="40" Margin="0,0,10,0"/>
+                                    <Rectangle Fill="#E6FFE6" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#CCFFCC" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#B3FFB3" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#99FF99" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#80FF80" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#66FF66" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#4DFF4D" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#33FF33" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#1AFF1A" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#00FF00" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#00E600" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#00CC00" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#00B300" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#009900" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#008000" Height="40" Width="40" Margin="2"/>
+                                </StackPanel>
+                                
+                                <!-- Blue Shades -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="Blue:" VerticalAlignment="Center" Width="40" Margin="0,0,10,0"/>
+                                    <Rectangle Fill="#E6E6FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#CCCCFF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#B3B3FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#9999FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#8080FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#6666FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#4D4DFF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#3333FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#1A1AFF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#0000FF" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#0000E6" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#0000CC" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#0000B3" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#000099" Height="40" Width="40" Margin="2"/>
+                                    <Rectangle Fill="#000080" Height="40" Width="40" Margin="2"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+                </Grid>
             </TabItem>
             
             <!-- Schedule Management Tab -->
