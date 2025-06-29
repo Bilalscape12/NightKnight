@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:NightKnight"
         Title="NightKnight - Blue Light Filter" Height="700" Width="920"
-        Background="#1E1E1E" Foreground="#E0E0E0">
+        Background="#1E1E1E" Foreground="#E0E0E0" WindowState="Maximized">
     
     <Window.Resources>
         <local:TimeSpanConverter x:Key="TimeSpanConverter"/>
@@ -264,7 +264,7 @@
     <Grid Margin="10" Background="{StaticResource BackgroundBrush}">
         <TabControl>
             <!-- Manual Control Tab -->
-            <TabItem Header="Manual Control">
+            <TabItem Header="Manual Control" FontSize="20">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -272,24 +272,24 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Top section - Filter Controls -->
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Manual Filter Control" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
+                    <StackPanel Grid.Row="0" Margin="0,0,0,0">
+                        <TextBlock Text="NightKnight" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
                         
                         <GroupBox Header="Filter Intensity" Margin="0,0,0,20">
                             <StackPanel Margin="10">
                                 <TextBlock Text="Green Channel Reduction:" Margin="0,0,0,5"/>
-                                <Slider x:Name="GreenSlider" Minimum="0" Maximum="0.5" Value="0" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
+                                <Slider x:Name="GreenSlider" Minimum="0" Maximum="0.5" Value="0" TickFrequency="0.01" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
                                 <TextBlock x:Name="GreenText" Text="Green Reduction: 0.00" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
                                 
                                 <TextBlock Text="Blue Channel Reduction:" Margin="0,0,0,5"/>
-                                <Slider x:Name="BlueSlider" Minimum="0" Maximum="0.5" Value="0.3" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
+                                <Slider x:Name="BlueSlider" Minimum="0" Maximum="0.5" Value="0.3" TickFrequency="0.01" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
                                 <TextBlock x:Name="BlueText" Text="Blue Reduction: 0.30" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
                             </StackPanel>
                         </GroupBox>
                         
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Content="Apply Filter" Click="ApplyFilter_Click" Margin="5" Width="120" Height="35"/>
-                            <Button Content="Reset" Click="Reset_Click" Margin="5" Width="120" Height="35"/>
+                            <Button Content="Apply Filter" Click="ApplyFilter_Click" Margin="5" Width="240" Height="70"/>
+                            <Button Content="Reset" Click="Reset_Click" Margin="5" Width="240" Height="70"/>
                         </StackPanel>
                     </StackPanel>
                     
@@ -297,11 +297,20 @@
                     <GroupBox Grid.Row="1" Header="Color Palette - Apply filter to see effects" Height="400">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Margin="10">
+
                                 <TextBlock Text="Rainbow Colors:" FontWeight="Bold" Margin="0,0,0,10"/>
                                 
                                 <!-- Rainbow Colors Row -->
                                 <Grid Margin="0,0,0,20">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -312,41 +321,20 @@
                                     <Rectangle Grid.Column="1" Fill="DarkOrange" Height="60" Margin="2"/>
                                     <Rectangle Grid.Column="2" Fill="Yellow" Height="60" Margin="2"/>
                                     <Rectangle Grid.Column="3" Fill="GreenYellow" Height="60" Margin="2"/>
-                                </Grid>
-                                
-                                <Grid Margin="0,0,0,20">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <Rectangle Grid.Column="0" Fill="Lime" Height="60" Margin="2"/>
-                                    <Rectangle Grid.Column="1" Fill="SpringGreen" Height="60" Margin="2"/>
-                                    <Rectangle Grid.Column="2" Fill="Aqua" Height="60" Margin="2"/>
-                                    <Rectangle Grid.Column="3" Fill="DodgerBlue" Height="60" Margin="2"/>
-                                </Grid>
-
-                                <Grid Margin="0,0,0,20">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <Rectangle Grid.Column="0" Fill="Blue" Height="60" Margin="2"/>
-                                    <Rectangle Grid.Column="1" Fill="BlueViolet" Height="60" Margin="2"/>
-                                    <Rectangle Grid.Column="2" Fill="Fuchsia" Height="60" Margin="2"/>
-                                    <Rectangle Grid.Column="3" Fill="DeepPink" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="4" Fill="Lime" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="5" Fill="SpringGreen" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="6" Fill="Aqua" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="7" Fill="DodgerBlue" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="8" Fill="Blue" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="9" Fill="BlueViolet" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="10" Fill="Fuchsia" Height="60" Margin="2"/>
+                                    <Rectangle Grid.Column="11" Fill="DeepPink" Height="60" Margin="2"/>
                                 </Grid>
                                 
                                 <TextBlock Text="Color Shades (Light to Dark):" FontWeight="Bold" Margin="0,0,0,10"/>
                                 
                                 <!-- Red Shades -->
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="Red:" VerticalAlignment="Center" Width="40" Margin="0,0,10,0"/>
                                     <Rectangle Fill="#FFE6E6" Height="40" Width="40" Margin="2"/>
                                     <Rectangle Fill="#FFCCCC" Height="40" Width="40" Margin="2"/>
                                     <Rectangle Fill="#FFB3B3" Height="40" Width="40" Margin="2"/>
@@ -366,7 +354,6 @@
                                 
                                 <!-- Green Shades -->
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="Green:" VerticalAlignment="Center" Width="40" Margin="0,0,10,0"/>
                                     <Rectangle Fill="#E6FFE6" Height="40" Width="40" Margin="2"/>
                                     <Rectangle Fill="#CCFFCC" Height="40" Width="40" Margin="2"/>
                                     <Rectangle Fill="#B3FFB3" Height="40" Width="40" Margin="2"/>
@@ -386,7 +373,6 @@
                                 
                                 <!-- Blue Shades -->
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <TextBlock Text="Blue:" VerticalAlignment="Center" Width="40" Margin="0,0,10,0"/>
                                     <Rectangle Fill="#E6E6FF" Height="40" Width="40" Margin="2"/>
                                     <Rectangle Fill="#CCCCFF" Height="40" Width="40" Margin="2"/>
                                     <Rectangle Fill="#B3B3FF" Height="40" Width="40" Margin="2"/>
@@ -410,7 +396,7 @@
             </TabItem>
             
             <!-- Schedule Management Tab -->
-            <TabItem Header="Schedule">
+            <TabItem Header="Schedule" FontSize="20">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -422,11 +408,11 @@
                     <GroupBox Grid.Row="0" Header="Schedule Controls" Margin="0,0,0,10">
                         <StackPanel Orientation="Horizontal" Margin="10">
                             <CheckBox x:Name="EnableScheduleCheckBox" Content="Enable Schedule" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                            <Button Content="Add New Interval" Click="AddInterval_Click" Margin="5" Width="120" Height="30"/>
-                            <Button Content="Edit Selected" Click="EditInterval_Click" Margin="5" Width="120" Height="30"/>
-                            <Button Content="Delete Selected" Click="DeleteInterval_Click" Margin="5" Width="120" Height="30"/>
-                            <Button Content="Clear All" Click="ClearAllIntervals_Click" Margin="5" Width="120" Height="30"/>
-                            <Button Content="Sunset/Sunrise Preset" Click="SunsetSunrisePreset_Click" Margin="5" Width="140" Height="30"/>
+                            <Button Content="Add New Interval" Click="AddInterval_Click" Margin="10" Width="180" Height="30"/>
+                            <Button Content="Edit Selected" Click="EditInterval_Click" Margin="10" Width="170" Height="30"/>
+                            <Button Content="Delete Selected" Click="DeleteInterval_Click" Margin="10" Width="170" Height="30"/>
+                            <Button Content="Clear All" Click="ClearAllIntervals_Click" Margin="10" Width="170" Height="30"/>
+                            <Button Content="Sunset/Sunrise Preset" Click="SunsetSunrisePreset_Click" Margin="10" Width="220" Height="30"/>
                         </StackPanel>
                     </GroupBox>
                     
@@ -435,21 +421,21 @@
                         <ListView x:Name="ScheduleListView" Margin="5" SelectionChanged="ScheduleListView_SelectionChanged" MouseLeftButtonDown="ScheduleListView_MouseLeftButtonDown">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="Start Time" Width="100">
+                                    <GridViewColumn Header="Start Time" Width="200">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding StartTime, Converter={StaticResource TimeSpanConverter}}"/>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="End Time" Width="100">
+                                    <GridViewColumn Header="End Time" Width="200">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding EndTime, Converter={StaticResource TimeSpanConverter}}"/>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Type" Width="80">
+                                    <GridViewColumn Header="Type" Width="160">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock>
@@ -463,11 +449,11 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Green Reduction" Width="120" DisplayMemberBinding="{Binding GreenReduction, StringFormat=P0}"/>
-                                    <GridViewColumn Header="Blue Reduction" Width="120" DisplayMemberBinding="{Binding BlueReduction, StringFormat=P0}"/>
-                                    <GridViewColumn Header="Gradual Start" Width="100" DisplayMemberBinding="{Binding GradualStart}"/>
-                                    <GridViewColumn Header="Gradual End" Width="100" DisplayMemberBinding="{Binding GradualEnd}"/>
-                                    <GridViewColumn Header="Active" Width="60" DisplayMemberBinding="{Binding IsActive}"/>
+                                    <GridViewColumn Header="Green Reduction" Width="240" DisplayMemberBinding="{Binding GreenReduction, StringFormat=P0}"/>
+                                    <GridViewColumn Header="Blue Reduction" Width="240" DisplayMemberBinding="{Binding BlueReduction, StringFormat=P0}"/>
+                                    <GridViewColumn Header="Gradual Start" Width="200" DisplayMemberBinding="{Binding GradualStart}"/>
+                                    <GridViewColumn Header="Gradual End" Width="200" DisplayMemberBinding="{Binding GradualEnd}"/>
+                                    <GridViewColumn Header="Active" Width="120" DisplayMemberBinding="{Binding IsActive}"/>
                                 </GridView>
                             </ListView.View>
                         </ListView>

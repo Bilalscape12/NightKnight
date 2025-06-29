@@ -1,7 +1,7 @@
 <Window x:Class="NightKnight.IntervalDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Filter Interval" Height="500" Width="400" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Title="Filter Interval" Height="800" Width="600" WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
         Background="#1E1E1E" Foreground="#E0E0E0">
     
     <Window.Resources>
@@ -83,10 +83,10 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <TextBlock Grid.Row="0" Text="Configure Filter Interval" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
+        <TextBlock Grid.Row="0" Text="Configure Filter Interval" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
         
         <!-- Form -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" FontSize="18">
             <StackPanel>
                 <!-- Time Settings -->
                 <GroupBox Header="Time Settings" Margin="0,0,0,15">
@@ -112,11 +112,11 @@
                 <GroupBox Header="Filter Intensity" Margin="0,0,0,15">
                     <StackPanel Margin="10">
                         <TextBlock Text="Green Channel Reduction:" Margin="0,0,0,5"/>
-                        <Slider x:Name="GreenReductionSlider" Minimum="0" Maximum="0.5" Value="0.1" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
+                        <Slider x:Name="GreenReductionSlider" Minimum="0" Maximum="0.5" Value="0" TickFrequency="0.01" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
                         <TextBlock x:Name="GreenReductionText" Text="10%" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
                         
                         <TextBlock Text="Blue Channel Reduction:" Margin="0,0,0,5"/>
-                        <Slider x:Name="BlueReductionSlider" Minimum="0" Maximum="0.5" Value="0.3" TickFrequency="0.05" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
+                        <Slider x:Name="BlueReductionSlider" Minimum="0" Maximum="0.5" Value="0.3" TickFrequency="0.01" IsSnapToTickEnabled="True" Margin="0,0,0,5"/>
                         <TextBlock x:Name="BlueReductionText" Text="30%" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="{StaticResource PrimaryLightBrush}"/>
                     </StackPanel>
                 </GroupBox>
