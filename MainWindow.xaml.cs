@@ -235,6 +235,7 @@ namespace NightKnight
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
             FilterInterval? activeInterval = GetActiveInterval(currentTime);
             FilterInterval? nextInterval = GetNextInterval(currentTime);
+            FilterInterval? previousInterval = GetPreviousInterval(currentTime);
             bool wasInTransition = isInTransition;
             isInTransition = false;
 
@@ -244,7 +245,15 @@ namespace NightKnight
                 double targetBlue = activeInterval.BlueReduction;
 
                 // Check if we need gradual transitions
-                if (activeInterval.GradualStart && IsInStartTransition(currentTime, activeInterval))
+                bool shouldIgnoreStartTransition = false;
+                
+                // Check if there's a previous interval that ends when this one starts
+                if (previousInterval != null && previousInterval.GradualEnd && previousInterval.EndTime == activeInterval.StartTime)
+                {
+                    shouldIgnoreStartTransition = true;
+                }
+
+                if (activeInterval.GradualStart && IsInStartTransition(currentTime, activeInterval) && !shouldIgnoreStartTransition)
                 {
                     isInTransition = true;
                     double progress = GetStartTransitionProgress(currentTime, activeInterval);
@@ -296,6 +305,43 @@ namespace NightKnight
                 .Where(interval => interval.IsActive && interval.StartTime > currentTime)
                 .OrderBy(interval => interval.StartTime)
                 .FirstOrDefault();
+        }
+
+        private FilterInterval? GetPreviousInterval(TimeSpan currentTime)
+        {
+            FilterInterval? bestMatch = null;
+            TimeSpan bestEndTime = TimeSpan.Zero;
+
+            foreach (var interval in intervals.Where(i => i.IsActive))
+            {
+                TimeSpan intervalEndTime = interval.EndTime;
+                
+                // For intervals that cross midnight, we need to adjust the end time
+                // to be comparable with the current time
+                if (interval.StartTime > interval.EndTime)
+                {
+                    // This interval crosses midnight
+                    // If current time is before the end time, the interval ended yesterday
+                    if (currentTime < interval.EndTime)
+                    {
+                        intervalEndTime = interval.EndTime - TimeSpan.FromHours(24);
+                    }
+                    // Otherwise, the interval ended today at the normal end time
+                }
+
+                // Check if this interval ended before the current time
+                if (intervalEndTime <= currentTime)
+                {
+                    // If this is the first match or this interval ended later than our current best
+                    if (bestMatch == null || intervalEndTime > bestEndTime)
+                    {
+                        bestMatch = interval;
+                        bestEndTime = intervalEndTime;
+                    }
+                }
+            }
+
+            return bestMatch;
         }
 
         private void AdjustScheduleTimerInterval(bool wasInTransition, bool isInTransition)
